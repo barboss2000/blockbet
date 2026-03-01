@@ -1,11 +1,13 @@
 export default async function handler(req, res) {
-
   try {
 
     const response = await fetch("https://gamma-api.polymarket.com/markets");
-    const data = await response.json();
+    const json = await response.json();
 
-    const markets = data
+    // Polymarket иногда возвращает {data: [...]}
+    const marketsData = Array.isArray(json) ? json : json.data;
+
+    const markets = marketsData
       .filter(m => m.active)
       .slice(0, 10)
       .map(m => ({
@@ -24,5 +26,4 @@ export default async function handler(req, res) {
     });
 
   }
-
 }
