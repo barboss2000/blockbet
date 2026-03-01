@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BlockBet — BTC Prediction Market</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<style>
+
+body{
+background:#0b0f1a;
+color:white;
+font-family:'DM Mono', monospace;
+margin:0;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 24px;
+border-bottom:1px solid #222;
+}
+
+.logo{
+font-family:'Syne';
+font-size:20px;
+font-weight:700;
+}
+
+.logo span{
+color:#f7931a;
+}
+
+.connect{
+background:#f7931a;
+border:none;
+padding:8px 16px;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.layout{
+display:grid;
+grid-template-columns:1fr 420px;
+height:calc(100vh - 70px);
+}
+
+#chart{
+height:100%;
+}
+
+.sidebar{
+border-left:1px solid #222;
+padding:20px;
+overflow:auto;
+}
+
+.market{
+background:#12182a;
+padding:14px;
+border-radius:10px;
+margin-bottom:12px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.market:hover{
+background:#1b2440;
+}
+
+.market-title{
+font-weight:bold;
+margin-bottom:6px;
+}
+
+.market-info{
+font-size:12px;
+color:#aaa;
+}
+
+.bet-box{
+margin-top:20px;
+padding:16px;
+background:#12182a;
+border-radius:10px;
+}
+
+.bet-box input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:none;
+margin-bottom:10px;
+background:#0b0f1a;
+color:white;
+}
+
+.bet-buttons{
+display:flex;
+gap:10px;
+}
+
+.bet-up{
+background:#1db954;
+flex:1;
+padding:10px;
+border:none;
+border-radius:6px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.bet-down{
+background:#e84142;
+flex:1;
+padding:10px;
+border:none;
+border-radius:6px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+BLOCK<span>BET</span>
+</div>
+
+<button class="connect" onclick="connectWallet()">
+Connect Wallet
+</button>
+
+</header>
+
+<div class="layout">
+
+<div id="chart"></div>
+
+<div class="sidebar">
+
+<h3>Polymarket Events</h3>
+
+<div id="markets"></div>
+
+<div class="bet-box">
+
+<h3>Place Bet</h3>
+
+<input id="amount" placeholder="Amount">
+
+<div class="bet-buttons">
+<button class="bet-up">UP</button>
+<button class="bet-down">DOWN</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let selectedMarket = null
+
+async function loadMarkets(){
+
+const res = await fetch("https://gamma-api.polymarket.com/markets")
+
+const markets = await res.json()
+
+const container = document.getElementById("markets")
+
+container.innerHTML=""
+
+markets.slice(0,20).forEach(m=>{
+
+const div=document.createElement("div")
+
+div.className="market"
+
+div.innerHTML=`
+<div class="market-title">${m.question}</div>
+<div class="market-info">Volume: $${Math.round(m.volume)}</div>
+`
+
+div.onclick=()=>{
+
+selectedMarket=m
+alert("Selected market: "+m.question)
+
+}
+
+container.appendChild(div)
+
+})
+
+}
+
+loadMarkets()
+
+function connectWallet(){
+
+alert("Wallet connect coming soon (OP_NET integration)")
+
+}
+
+new TradingView.widget({
+
+container_id:"chart",
+symbol:"BINANCE:BTCUSDT",
+interval:"5",
+theme:"dark",
+autosize:true
+
+})
+
+</script>
+
+</body>
+</html>
