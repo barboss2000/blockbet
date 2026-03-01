@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>BlockBet — BTC Prediction Market</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>BlockBet</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
 
 body{
-background:#0b0f1a;
+background:#020617;
 color:white;
-font-family:'DM Mono', monospace;
+font-family:Inter;
 margin:0;
 }
 
@@ -21,14 +24,13 @@ header{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:16px 24px;
-border-bottom:1px solid #222;
+padding:20px 40px;
+border-bottom:1px solid #1e293b;
 }
 
 .logo{
-font-family:'Syne';
-font-size:20px;
 font-weight:700;
+font-size:22px;
 }
 
 .logo span{
@@ -38,9 +40,8 @@ color:#f7931a;
 .connect{
 background:#f7931a;
 border:none;
-padding:8px 16px;
-border-radius:6px;
-font-weight:bold;
+padding:10px 16px;
+border-radius:8px;
 cursor:pointer;
 }
 
@@ -50,84 +51,93 @@ grid-template-columns:1fr 420px;
 height:calc(100vh - 70px);
 }
 
-#chart{
+.chart{
+border-right:1px solid #1e293b;
+}
+
+#tv_chart{
 height:100%;
 }
 
-.sidebar{
-border-left:1px solid #222;
+.panel{
 padding:20px;
 overflow:auto;
 }
 
 .market{
-background:#12182a;
+background:#0f172a;
+border:1px solid #1e293b;
 padding:14px;
 border-radius:10px;
-margin-bottom:12px;
-cursor:pointer;
-transition:0.2s;
-}
-
-.market:hover{
-background:#1b2440;
+margin-bottom:14px;
 }
 
 .market-title{
-font-weight:bold;
+font-weight:600;
 margin-bottom:6px;
 }
 
-.market-info{
+.market-date{
 font-size:12px;
-color:#aaa;
+color:#94a3b8;
+}
+
+.market-buttons{
+margin-top:10px;
+}
+
+.market-buttons button{
+border:none;
+padding:6px 14px;
+border-radius:6px;
+cursor:pointer;
+margin-right:6px;
+}
+
+.yes{
+background:#22c55e;
+color:white;
+}
+
+.no{
+background:#ef4444;
+color:white;
 }
 
 .bet-box{
 margin-top:20px;
-padding:16px;
-background:#12182a;
-border-radius:10px;
+background:#0f172a;
+border:1px solid #1e293b;
+padding:20px;
+border-radius:12px;
 }
 
 .bet-box input{
 width:100%;
 padding:10px;
-border-radius:6px;
-border:none;
+margin-top:10px;
 margin-bottom:10px;
-background:#0b0f1a;
+background:#020617;
+border:1px solid #1e293b;
 color:white;
+border-radius:6px;
+}
+
+.bet-buttons button{
+width:48%;
+padding:12px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 
 .bet-buttons{
 display:flex;
-gap:10px;
-}
-
-.bet-up{
-background:#1db954;
-flex:1;
-padding:10px;
-border:none;
-border-radius:6px;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-.bet-down{
-background:#e84142;
-flex:1;
-padding:10px;
-border:none;
-border-radius:6px;
-color:white;
-font-weight:bold;
-cursor:pointer;
+justify-content:space-between;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -138,7 +148,7 @@ cursor:pointer;
 BLOCK<span>BET</span>
 </div>
 
-<button class="connect" onclick="connectWallet()">
+<button class="connect">
 Connect Wallet
 </button>
 
@@ -146,9 +156,11 @@ Connect Wallet
 
 <div class="layout">
 
-<div id="chart"></div>
+<div class="chart">
+<div id="tv_chart"></div>
+</div>
 
-<div class="sidebar">
+<div class="panel">
 
 <h3>Polymarket Events</h3>
 
@@ -161,8 +173,11 @@ Connect Wallet
 <input id="amount" placeholder="Amount">
 
 <div class="bet-buttons">
-<button class="bet-up">UP</button>
-<button class="bet-down">DOWN</button>
+
+<button class="yes" onclick="bet('UP')">UP</button>
+
+<button class="no" onclick="bet('DOWN')">DOWN</button>
+
 </div>
 
 </div>
@@ -173,61 +188,118 @@ Connect Wallet
 
 <script>
 
-let selectedMarket = null
-
-async function loadMarkets(){
-
-const res = await fetch("https://gamma-api.polymarket.com/markets")
-
-const markets = await res.json()
-
-const container = document.getElementById("markets")
-
-container.innerHTML=""
-
-markets.slice(0,20).forEach(m=>{
-
-const div=document.createElement("div")
-
-div.className="market"
-
-div.innerHTML=`
-<div class="market-title">${m.question}</div>
-<div class="market-info">Volume: $${Math.round(m.volume)}</div>
-`
-
-div.onclick=()=>{
-
-selectedMarket=m
-alert("Selected market: "+m.question)
-
-}
-
-container.appendChild(div)
-
-})
-
-}
-
-loadMarkets()
-
-function connectWallet(){
-
-alert("Wallet connect coming soon (OP_NET integration)")
-
-}
-
 new TradingView.widget({
 
-container_id:"chart",
+container_id:"tv_chart",
 symbol:"BINANCE:BTCUSDT",
 interval:"5",
 theme:"dark",
-autosize:true
+style:"1",
+autosize:true,
+toolbar_bg:"#020617",
+enable_publishing:false,
+hide_top_toolbar:false
 
-})
+});
+
+let selectedMarket = null;
+
+async function loadMarkets(){
+
+try{
+
+const res = await fetch("https://gamma-api.polymarket.com/markets");
+
+const markets = await res.json();
+
+const container = document.getElementById("markets");
+
+container.innerHTML="";
+
+markets.slice(0,20).forEach(m=>{
+
+const el=document.createElement("div");
+
+el.className="market";
+
+el.innerHTML=`
+
+<div class="market-title">
+
+${m.question}
+
+</div>
+
+<div class="market-date">
+
+End: ${new Date(m.endDate).toLocaleDateString()}
+
+</div>
+
+<div class="market-buttons">
+
+<button class="yes" onclick="selectMarket('${m.question}')">
+
+YES
+
+</button>
+
+<button class="no" onclick="selectMarket('${m.question}')">
+
+NO
+
+</button>
+
+</div>
+
+`;
+
+container.appendChild(el);
+
+});
+
+}catch(e){
+
+console.log("error loading polymarket",e)
+
+}
+
+}
+
+function selectMarket(q){
+
+selectedMarket=q;
+
+alert("Selected market: "+q);
+
+}
+
+function bet(direction){
+
+if(!selectedMarket){
+
+alert("Select market first");
+
+return;
+
+}
+
+const amount=document.getElementById("amount").value;
+
+alert(
+
+"Bet placed\n\nMarket: "+selectedMarket+"\nDirection: "+direction+"\nAmount: "+amount
+
+);
+
+}
+
+loadMarkets();
+
+setInterval(loadMarkets,30000);
 
 </script>
 
 </body>
+
 </html>
